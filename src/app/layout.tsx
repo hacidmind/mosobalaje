@@ -1,0 +1,51 @@
+import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans, Cinzel, Space_Grotesk } from 'next/font/google';
+import './globals.css';
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const cinzel = Cinzel({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['500', '600', '700'],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  weight: ['500', '700'],
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Mosobalaje Vehicle Imports | Premium Automotive Sourcing & Sales Nigeria',
+    template: '%s | Mosobalaje Vehicle Imports',
+  },
+  description: 'Mosobalaje Vehicle Imports is Nigeria\'s trusted automotive sourcing and importation specialist. Transparent vehicle clearance, verified inspections, and direct delivery across Nigeria.',
+  metadataBase: new URL(process.env.APP_URL || 'https://mosobalajeimports.ng'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_NG',
+    siteName: 'Mosobalaje Vehicle Imports',
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className={`${plusJakarta.variable} ${cinzel.variable} ${spaceGrotesk.variable}`}>
+      <body className="min-h-screen bg-[#fcfbf9] text-stone-900 font-sans selection:bg-amber-500 selection:text-stone-950 antialiased overflow-x-hidden">
+        {children}
+      </body>
+    </html>
+  );
+}

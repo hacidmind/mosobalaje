@@ -1,196 +1,107 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Send, CheckCircle2, MessageSquare } from 'lucide-react';
-import { store } from '../../lib/store';
+import { Mail, Phone, MessageCircle, Send, User } from 'lucide-react';
 import { useToast } from '../ui/Toast';
+import { createContactInquiry } from '@/src/lib/data';
+import { getWhatsAppUrl } from '@/src/lib/formatting';
 
 interface ContactFormProps {
-  onSuccess?: () => void;
+  whatsappNumber?: string;
 }
 
-export const ContactForm: React.FC<ContactFormProps> = ({ onSuccess }) => {
+export function ContactForm({ whatsappNumber }: ContactFormProps) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const [formData, setFormData] = useState({
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
     name: '',
     phone: '',
     email: '',
     subject: '',
-    vehicleReference: '',
     message: '',
+    vehicleReference: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast({
-        type: 'error',
-        title: 'Incomplete Details',
-        message: 'Please complete all required fields including your message.',
-      });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.phone || !form.email || !form.subject || !form.message) {
+      toast({ type: 'error', title: 'Validation Error', message: 'Please fill in all required fields.' });
       return;
     }
 
-    setLoading(true);
-
+    setSubmitting(true);
     try {
-      store.createInquiry({
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        subject: formData.subject.trim() || 'General Website Contact',
-        message: `${formData.vehicleReference ? `[Vehicle Ref: ${formData.vehicleReference}] ` : ''}${formData.message.trim()}`,
-        inquiryType: 'General Question',
-      });
-
-      setSubmitted(true);
-      toast({
-        type: 'success',
-        title: 'Message Dispatched',
-        message: 'Your message has been delivered to Mosobalaje customer relations.',
-      });
-
-      if (onSuccess) onSuccess();
-    } catch {
-      toast({
-        type: 'error',
-        title: 'Transmission Failed',
-        message: 'Unable to send message at this time.',
-      });
+      await createContactInquiry(form);
+      toast({ type: 'success', title: 'Message Sent!', message: 'Our team will get back to you within 1 business hour.' });
+      setForm({ name: '', phone: '', email: '', subject: '', message: '', vehicleReference: '' });
+    } catch (err) {
+      toast({ type: 'error', title: 'Submission Failed', message: err instanceof Error ? err.message : 'Please try again or contact us directly via WhatsApp.' });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="p-8 bg-stone-50 border border-stone-200 rounded-2xl text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-6 h-6" />
-        </div>
-        <h4 className="text-xl font-bold text-stone-900">Message Received</h4>
-        <p className="text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
-          Thank you, <strong className="text-stone-900">{formData.name}</strong>. Your message has been logged. Our client relations team will contact you at{' '}
-          <span className="font-semibold text-stone-900">{formData.phone}</span> shortly.
-        </p>
-        <button
-          onClick={() => {
-            setSubmitted(false);
-            setFormData({
-              name: '',
-              phone: '',
-              email: '',
-              subject: '',
-              vehicleReference: '',
-              message: '',
-            });
-          }}
-          className="mt-2 text-xs font-bold text-amber-700 hover:text-amber-800 underline cursor-pointer"
-        >
-          Send another inquiry
-        </button>
-      </div>
-    );
-  }
+  const whatsappUrl = getWhatsAppUrl(whatsappNumber);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold text-stone-700 mb-1">
-            Your Full Name <span className="text-rose-500">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="e.g. Barrister Emeka Nwosu"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all"
-          />
+    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 sm:p-8">
+      <h3 className="text-xl font-bold text-stone-900 mb-1">Send Us a Message</h3>
+      <p className="text-sm text-stone-500 mb-6">Our procurement desk responds within 1 business hour.</p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Full Name *</label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <input name="name" value={form.name} onChange={handleChange} type="text" className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="Your full name" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Phone Number *</label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <input name="phone" value={form.phone} onChange={handleChange} type="tel" className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="+234 800 000 0000" />
+            </div>
+          </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-stone-700 mb-1">
-            Phone / WhatsApp <span className="text-rose-500">*</span>
-          </label>
-          <input
-            type="tel"
-            required
-            placeholder="0802 000 0000"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold text-stone-700 mb-1">
-            Email Address <span className="text-rose-500">*</span>
-          </label>
-          <input
-            type="email"
-            required
-            placeholder="emeka@lawchamber.ng"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all"
-          />
+          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Email Address *</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input name="email" value={form.email} onChange={handleChange} type="email" className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="your@email.com" />
+          </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-stone-700 mb-1">
-            Vehicle Reference / URL (Optional)
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. 2023 Lexus RX 350 or Ref ID"
-            value={formData.vehicleReference}
-            onChange={(e) => setFormData({ ...formData, vehicleReference: e.target.value })}
-            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all"
-          />
+          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Subject *</label>
+          <input name="subject" value={form.subject} onChange={handleChange} type="text" className="w-full px-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="What is this regarding?" />
         </div>
-      </div>
 
-      <div>
-        <label className="block text-xs font-bold text-stone-700 mb-1">
-          Subject
-        </label>
-        <input
-          type="text"
-          placeholder="e.g. Showroom inspection appointment / Port clearing question"
-          value={formData.subject}
-          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all"
-        />
-      </div>
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Vehicle Reference (if applicable)</label>
+          <input name="vehicleReference" value={form.vehicleReference} onChange={handleChange} type="text" className="w-full px-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500" placeholder="e.g. 2023 Lexus RX 350" />
+        </div>
 
-      <div>
-        <label className="block text-xs font-bold text-stone-700 mb-1">
-          Message <span className="text-rose-500">*</span>
-        </label>
-        <textarea
-          rows={4}
-          required
-          placeholder="Tell us what you need help with..."
-          value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-hidden transition-all resize-none"
-        />
-      </div>
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Message *</label>
+          <textarea name="message" value={form.message} onChange={handleChange} rows={4} className="w-full px-3 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 resize-none" placeholder="How can we help you?" />
+        </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50"
-      >
-        <MessageSquare className="w-4 h-4 text-amber-400" />
-        <span>{loading ? 'Submitting...' : 'Send Message to Customer Relations'}</span>
-      </button>
-    </form>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <button type="submit" disabled={submitting} className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-stone-900 text-white text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            {submitting ? 'Sending...' : <><Send className="w-4 h-4" /> Send Message</>}
+          </button>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500 transition-colors">
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </a>
+        </div>
+      </form>
+    </div>
   );
-};
+}

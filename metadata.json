@@ -1,6 +1,0 @@
-{
-  "name": "Mosobalaje Vehicle Imports",
-  "description": "Premium vehicle import and sourcing company in Nigeria offering high-quality international vehicles with complete transparency.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

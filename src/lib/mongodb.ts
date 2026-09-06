@@ -1,67 +1,63 @@
-/**
- * MongoDB Atlas Connection Utility
- * 
- * Reusable connection singleton designed for MongoDB Atlas.
- * Caches database and client across serverless and server-side executions.
- * Respects MONGODB_URI environment variable and validates credentials securely.
- */
+import { MongoClient, Db } from 'mongodb';
 
-export interface MongoConfig {
-  uri: string;
-  dbName: string;
-  isConfigured: boolean;
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.MONGODB_DB || 'mosobalaje_imports';
+
+interface CachedConnection {
+  client: MongoClient | null;
+  db: Db | null;
 }
 
-export function getMongoConfig(): MongoConfig {
-  const uri = typeof process !== 'undefined' && process.env?.MONGODB_URI 
-    ? process.env.MONGODB_URI 
-    : '';
-  
-  const isConfigured = Boolean(uri && uri.includes('mongodb'));
+const globalCache = globalThis as unknown as { _mongoCache?: CachedConnection };
 
-  return {
-    uri,
-    dbName: 'mosobalaje_imports',
-    isConfigured,
-  };
+if (!globalCache._mongoCache) {
+  globalCache._mongoCache = { client: null, db: null };
 }
 
-/**
- * MongoDB client instance cache for server runtimes
- */
-let cachedClient: unknown = null;
-let cachedDb: unknown = null;
-
-export async function connectToDatabase() {
-  const config = getMongoConfig();
-
-  if (!config.isConfigured) {
-    return {
-      client: null,
-      db: null,
-      isConfigured: false,
-      message: 'MongoDB Atlas is running in client-safe offline store mode. Provide MONGODB_URI in .env to connect to live cluster.'
-    };
-  }
-
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb, isConfigured: true };
-  }
-
-  try {
-    // Dynamic import to prevent bundling errors in client-only preview contexts
-    // @ts-expect-error Optional server-side MongoDB driver
-    const { MongoClient } = await import('mongodb');
-    const client = new MongoClient(config.uri);
-    await client.connect();
-    const db = client.db(config.dbName);
-
-    cachedClient = client;
-    cachedDb = db;
-
-    return { client, db, isConfigured: true };
-  } catch (error) {
-    console.warn('MongoDB Atlas connection notice:', error);
-    return { client: null, db: null, isConfigured: false, error };
-  }
+function getCache(): CachedConnection {
+  return globalCache._mongoCache!;
 }
+
+export async function connectToDatabase(): Promise<{
+  client: MongoClient;
+  db: Db;
+}> {
+  const cache = getCache();
+
+  if (cache.client && cache.db) {
+    return { client: cache.client, db: cache.db };
+  }
+
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is not set');
+  }
+
+  const client = new MongoClient(MONGODB_URI, {
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000,
+  });
+
+  await client.connect();
+  const db = client.db(DB_NAME);
+
+  cache.client = client;
+  cache.db = db;
+
+  return { client, db };
+}
+
+export async function getCollection(name: string) {
+  const { db } = await connectToDatabase();
+  return db.collection(name);
+}
+
+export const COLLECTIONS = {
+  VEHICLES: 'vehicles',
+  LEADS: 'leads',
+  INQUIRIES: 'inquiries',
+  VEHICLE_REQUESTS: 'vehicleRequests',
+  ADMIN_USERS: 'adminUsers',
+  SETTINGS: 'settings',
+} as const;
