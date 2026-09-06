@@ -108,6 +108,7 @@ export interface VehicleRequest {
   requirements: string;
   status: 'Pending Review' | 'Sourcing Active' | 'Vehicle Found' | 'Closed';
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface AdminUser {

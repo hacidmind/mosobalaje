@@ -6,13 +6,13 @@ A vehicle sourcing and sales app for Nigerian buyers, with a public showroom and
 
 - **Showroom:** a featured vehicle spotlight, curated homepage inventory, searchable listings, make and availability filters, sorting, vehicle galleries, and WhatsApp inquiries.
 - **Custom sourcing:** a vehicle request form, a nine-step import guide, company information, and a contact form.
-- **Admin workspace:** inventory creation and editing, lead tracking, inquiry and request management, dashboard summaries, and site content settings.
+- **Admin workspace:** inventory creation and editing with formatted vehicle descriptions, detailed inquiry and vehicle-request views, working/done workflow actions, editable welcome-email templates, lead tracking, dashboard summaries, and site content settings.
 - **User feedback:** route skeletons, retry and not-found pages, form submission feedback, active navigation, and keyboard focus indicators.
 - **Motion:** GSAP introduces homepage content; Anime.js reveals inventory and journey sections as they enter the viewport. Both load on demand, clean up on unmount, and respect reduced-motion preferences. Content stays visible if animation code fails to load.
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, MongoDB, Zod, Lucide icons, GSAP 3, and Anime.js 4. npm and `package-lock.json` are the documented installation path.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, MongoDB, Zod, Tiptap, sanitize-html, Lucide icons, GSAP 3, and Anime.js 4. npm and `package-lock.json` are the documented installation path.
 
 ## Run locally
 

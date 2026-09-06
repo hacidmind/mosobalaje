@@ -13,9 +13,10 @@ import { Vehicle } from '@/src/lib/types';
 interface Props {
   vehicle: Vehicle;
   allVehicles: Vehicle[];
+  description: React.ReactNode;
 }
 
-export function VehicleDetailPageClient({ vehicle, allVehicles }: Props) {
+export function VehicleDetailPageClient({ vehicle, allVehicles, description }: Props) {
 
   return (
     <div className="min-h-screen bg-[#fcfbf9]">
@@ -58,7 +59,7 @@ export function VehicleDetailPageClient({ vehicle, allVehicles }: Props) {
 
             <div>
               <h2 className="text-lg font-bold text-stone-900 mb-3">Description</h2>
-              <p className="text-sm text-stone-600 leading-relaxed">{vehicle.description}</p>
+              {description}
             </div>
 
             {vehicle.features && vehicle.features.length > 0 && (

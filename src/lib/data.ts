@@ -1,6 +1,7 @@
 'use server';
 
 import { ObjectId } from 'mongodb';
+import { sanitizeDescription } from './sanitize-description';
 import { getCollection, COLLECTIONS } from './mongodb';
 import {
   Vehicle,
@@ -16,6 +17,8 @@ import {
   leadSchema,
   contactFormSchema,
   settingsSchema,
+  inquiryStatusSchema,
+  vehicleRequestStatusSchema,
 } from './validations';
 
 function serializeDoc<T extends { _id: unknown }>(doc: T): T {
@@ -85,6 +88,7 @@ export async function createVehicle(data: unknown) {
     images: Array.isArray(raw.images) ? raw.images : [],
   };
   const parsed = vehicleSchema.parse(input);
+  parsed.description = sanitizeDescription(parsed.description);
   const slug = generateSlug(parsed.make, parsed.model, parsed.year, parsed.trim);
   const now = new Date().toISOString();
 
@@ -113,6 +117,7 @@ export async function updateVehicle(id: string, data: unknown) {
   if (raw.sellingPrice !== undefined && typeof raw.sellingPrice === 'string') input.sellingPrice = Number(raw.sellingPrice);
 
   const parsed = vehicleSchema.partial().parse(input);
+  if (parsed.description !== undefined) parsed.description = sanitizeDescription(parsed.description);
   const now = new Date().toISOString();
 
   const updates: Record<string, unknown> = { ...parsed, updatedAt: now };
@@ -192,6 +197,17 @@ export async function createContactInquiry(data: unknown) {
   });
 }
 
+export async function updateInquiryStatus(id: string, status: unknown) {
+  const parsedStatus = inquiryStatusSchema.parse(status);
+  const collection = await getCollection(COLLECTIONS.INQUIRIES);
+  const result = await collection.findOneAndUpdate(
+    { _id: toObjectId(id) },
+    { $set: { status: parsedStatus, updatedAt: new Date().toISOString() } },
+    { returnDocument: 'after' },
+  );
+  return result ? serializeDoc(result) as unknown as Inquiry : null;
+}
+
 // ─── Vehicle Requests ───────────────────────────────────────
 
 export async function getVehicleRequests() {
@@ -215,18 +231,35 @@ export async function createVehicleRequest(data: unknown) {
 
   const req = serializeDoc({ ...doc, _id: result.insertedId }) as unknown as VehicleRequest;
 
-  await createLead({
-    name: parsed.name,
-    phone: parsed.phone,
-    email: parsed.email,
-    vehicleName: `${parsed.preferredMake} ${parsed.preferredModel} (${parsed.minYear}-${parsed.maxYear})`,
-    budget: parsed.budget,
-    source: 'Vehicle Request' as const,
-    status: 'New' as const,
-    notes: `Custom Vehicle Sourcing Request: ${parsed.requirements || 'No special requirements noted'}`,
-  });
+  // The request is the source record. A lead is useful for the sales pipeline,
+  // but a lead write failure must not make customers resubmit a saved request.
+  try {
+    await createLead({
+      name: parsed.name,
+      phone: parsed.phone,
+      email: parsed.email,
+      vehicleName: `${parsed.preferredMake} ${parsed.preferredModel} (${parsed.minYear}-${parsed.maxYear})`,
+      budget: parsed.budget,
+      source: 'Vehicle Request' as const,
+      status: 'New' as const,
+      notes: `Custom Vehicle Sourcing Request: ${parsed.requirements || 'No special requirements noted'}`,
+    });
+  } catch (error) {
+    console.error('Vehicle request saved, but its lead could not be created.', error);
+  }
 
   return req;
+}
+
+export async function updateVehicleRequestStatus(id: string, status: unknown) {
+  const parsedStatus = vehicleRequestStatusSchema.parse(status);
+  const collection = await getCollection(COLLECTIONS.VEHICLE_REQUESTS);
+  const result = await collection.findOneAndUpdate(
+    { _id: toObjectId(id) },
+    { $set: { status: parsedStatus, updatedAt: new Date().toISOString() } },
+    { returnDocument: 'after' },
+  );
+  return result ? serializeDoc(result) as unknown as VehicleRequest : null;
 }
 
 // ─── Leads ──────────────────────────────────────────────────

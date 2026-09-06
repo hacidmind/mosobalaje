@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import DescriptionEditor from '@/src/components/admin/DescriptionEditor';
 import { VehicleImage } from '@/src/components/vehicles/VehicleImage';
 import { Trash2, Plus, Pencil, X } from 'lucide-react';
 import { useToast } from '@/src/components/ui/Toast';
@@ -195,7 +196,8 @@ export default function AdminVehiclesPage() {
                 <div><label className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Import Status</label><select name="importStatus" value={form.importStatus} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-stone-300 text-sm"><option>At Lagos Holding Facility</option><option>Customs Cleared</option><option>Tin Can Island Port Clearing</option><option>On High Seas</option><option>Sourced in USA/Europe</option><option>Port of Export</option><option>Ready for Nationwide Delivery</option></select></div>
               </div>
               <div><label className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Location</label><input name="location" value={form.location} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-stone-300 text-sm" /></div>
-              <div><label className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Description</label><textarea name="description" value={form.description} onChange={handleChange} rows={3} className="w-full px-3 py-2 rounded-lg border border-stone-300 text-sm resize-none" /></div>
+              <div><label htmlFor="vehicle-description" className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Description</label>
+                <DescriptionEditor key={editingId || 'new'} initialValue={form.description} onChange={(html) => setForm(prev => ({ ...prev, description: html }))} /></div>
               <div><label className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Features</label><input name="features" value={form.features} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-stone-300 text-sm" placeholder="Feature 1, Feature 2" /></div>
               <div><label className="block text-xs font-semibold text-stone-700 mb-1 uppercase">Image URLs</label><input name="images" value={form.images} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-stone-300 text-sm" placeholder="https://..., https://..." /><p className="text-[10px] text-stone-400 mt-1">Comma-separated URLs</p></div>
               <div className="flex items-center gap-2"><input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} className="rounded border-stone-300" /><label className="text-sm text-stone-700">Featured on homepage</label></div>

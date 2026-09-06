@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useDeferredValue } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { descriptionToText } from '@/src/lib/description-format';
 import { Vehicle } from '@/src/lib/types';
 
 interface VehicleFiltersProps {
@@ -33,7 +34,7 @@ export function VehicleFilters({ vehicles, onFilter, initialSearch = '', initial
           v.make.toLowerCase().includes(q) ||
           v.model.toLowerCase().includes(q) ||
           v.year.toString().includes(q) ||
-          v.description.toLowerCase().includes(q) ||
+          descriptionToText(v.description).toLowerCase().includes(q) ||
           v.trim.toLowerCase().includes(q),
       );
     }

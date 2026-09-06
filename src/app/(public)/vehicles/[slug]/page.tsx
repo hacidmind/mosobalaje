@@ -1,4 +1,7 @@
 import { Metadata } from 'next';
+import { VehicleDescription } from '@/src/components/vehicles/VehicleDescription';
+import { descriptionToText } from '@/src/lib/description-format';
+import { sanitizeDescription } from '@/src/lib/sanitize-description';
 import { notFound } from 'next/navigation';
 import { getVehicleBySlug, getVehicles } from '@/src/lib/data';
 import { VehicleDetailPageClient } from './VehicleDetailPageClient';
@@ -14,10 +17,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`,
-    description: vehicle.description.slice(0, 160),
+    description: descriptionToText(sanitizeDescription(vehicle.description)).slice(0, 160),
     openGraph: {
       title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-      description: vehicle.description.slice(0, 160),
+      description: descriptionToText(sanitizeDescription(vehicle.description)).slice(0, 160),
       images: vehicle.images.slice(0, 1),
     },
   };
@@ -30,5 +33,5 @@ export default async function VehicleDetailPage({ params }: Props) {
 
   const allVehicles = await getVehicles({ limit: 6 });
 
-  return <VehicleDetailPageClient vehicle={vehicle} allVehicles={allVehicles} />;
+  return <VehicleDetailPageClient vehicle={vehicle} allVehicles={allVehicles} description={<VehicleDescription description={vehicle.description} />} />;
 }

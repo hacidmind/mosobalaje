@@ -70,3 +70,63 @@ test('unavailable vehicle images have a readable fallback', async ({ page }) => 
   await expect(page.getByRole('link', { name: 'Browse Vehicle Inventory' })).toBeVisible();
 });
 
+test('admin can format a vehicle description', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('mosobalaje_admin_auth_v1', 'true'));
+  await page.route('**/api/vehicles', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([{
+      _id: 'vehicle-1', slug: '2026-test-suv', make: 'Test', model: 'SUV', year: 2026,
+      trim: 'Premium', bodyType: 'SUV', price: 25000000, currency: 'NGN', mileage: 10,
+      mileageUnit: 'km', transmission: 'Automatic', fuelType: 'Petrol', engine: '2.0L',
+      exteriorColor: 'Black', interiorColor: 'Tan', description: 'Original description',
+      features: [], images: [], status: 'Available', importStatus: 'Customs Cleared',
+      location: 'Lagos', featured: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    }]),
+  }));
+
+  await page.goto('/admin/vehicles');
+  await page.getByRole('button', { name: 'Edit Test SUV' }).click();
+  const editor = page.getByRole('textbox', { name: 'Vehicle description' });
+  await expect(editor).toBeVisible();
+  await editor.fill('Premium condition');
+  await editor.selectText();
+  await page.getByRole('button', { name: 'Bold' }).click();
+  await expect(editor.locator('strong')).toHaveText('Premium condition');
+  await page.getByRole('combobox', { name: 'Text style' }).selectOption('2');
+  await expect(editor.locator('h2')).toContainText('Premium condition');
+  await page.getByRole('button', { name: 'Bullet list' }).click();
+  await expect(editor.locator('ul')).toBeVisible();
+});
+
+test('vehicle request form validates each step and supports keyboard navigation', async ({ page }) => {
+  await page.goto('/request-vehicle');
+
+  await page.getByLabel('Full name *').fill('Amina Bello');
+  await page.getByLabel('Phone *').fill('+234 801 234 5678');
+  await page.getByLabel('Email *').fill('not-an-email');
+  await page.getByLabel('Email *').press('Enter');
+
+  await expect(page.getByText('Enter a valid email address')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your contact details' })).toBeVisible();
+
+  await page.getByLabel('Email *').fill('amina@example.com');
+  await page.getByLabel('Email *').press('Enter');
+  await expect(page.getByRole('heading', { name: 'Vehicle specification' })).toBeVisible();
+
+  await page.getByLabel('Preferred make *').fill('Toyota');
+  await page.getByLabel('Preferred model *').fill('Land Cruiser');
+  await page.getByLabel('Earliest year').fill('2025');
+  await page.getByLabel('Latest year').fill('2020');
+  await page.getByLabel('Latest year').press('Enter');
+
+  await expect(page.getByText('Maximum year must be the same as or later than minimum year')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vehicle specification' })).toBeVisible();
+
+  await page.getByLabel('Latest year').fill('2026');
+  await page.getByLabel('Latest year').press('Enter');
+  await expect(page.getByRole('heading', { name: 'Budget and requirements' })).toBeVisible();
+  await expect(page.getByText('Toyota Land Cruiser')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+

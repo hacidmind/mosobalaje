@@ -1,8 +1,11 @@
-'use client';
-
-import React from 'react';
+import type { Metadata } from 'next';
 import { SectionHeader } from '@/src/components/ui/SectionHeader';
 import { VehicleRequestForm } from '@/src/components/forms/VehicleRequestForm';
+
+export const metadata: Metadata = {
+  title: 'Request a Vehicle',
+  description: 'Tell Mosobalaje Vehicle Imports what you need and our sourcing team will search trusted global auctions and dealer networks.',
+};
 
 export default function RequestVehiclePage() {
   return (

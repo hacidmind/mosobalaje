@@ -16,7 +16,7 @@ export const vehicleSchema = z.object({
   exteriorColor: z.string().max(50).default(''),
   interiorColor: z.string().max(50).default(''),
   vinPlaceholder: z.string().max(20).optional(),
-  description: z.string().max(2000).default(''),
+  description: z.string().max(20000, 'Description is too long. Please shorten it.').default(''),
   features: z.array(z.string()).default([]),
   images: z.array(z.string()).default([]),
   status: z.enum(['Available', 'Reserved', 'Sold', 'In Transit', 'Coming Soon']).default('Available'),
@@ -47,20 +47,29 @@ export const inquirySchema = z.object({
   inquiryType: z.enum(['Vehicle Inquiry', 'Custom Import Quote', 'Inspection Report Request', 'General Question']).default('Vehicle Inquiry'),
 });
 
+export const inquiryStatusSchema = z.enum(['New', 'Reviewing', 'Contacted', 'Resolved', 'Archived']);
+
+const maximumRequestYear = new Date().getFullYear() + 1;
+
 export const vehicleRequestSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  phone: z.string().min(1, 'Phone is required').max(20),
-  email: z.string().email('Valid email is required').max(100),
-  preferredMake: z.string().min(1, 'Preferred make is required').max(50),
-  preferredModel: z.string().min(1, 'Preferred model is required').max(50),
-  minYear: z.number().int().min(1990).max(2027),
-  maxYear: z.number().int().min(1990).max(2027),
+  name: z.string().trim().min(2, 'Enter your full name').max(100),
+  phone: z.string().trim().min(7, 'Enter a valid phone number').max(25).regex(/^\+?[\d\s().-]+$/, 'Enter a valid phone number'),
+  email: z.string().trim().toLowerCase().email('Enter a valid email address').max(100),
+  preferredMake: z.string().trim().min(1, 'Preferred make is required').max(50),
+  preferredModel: z.string().trim().min(1, 'Preferred model is required').max(50),
+  minYear: z.number().int().min(1990, 'Minimum year must be 1990 or newer').max(maximumRequestYear),
+  maxYear: z.number().int().min(1990).max(maximumRequestYear, `Maximum year cannot be later than ${maximumRequestYear}`),
   budget: z.string().max(100).default(''),
   transmission: z.enum(['Automatic', 'Manual', 'Any']).default('Any'),
   fuelType: z.enum(['Petrol', 'Diesel', 'Hybrid', 'Electric', 'Any']).default('Any'),
   bodyType: z.enum(['SUV', 'Sedan', 'Pickup Truck', 'Coupe', 'Convertible', 'Van', 'Hatchback', 'Any']).default('Any'),
-  requirements: z.string().max(2000).default(''),
+  requirements: z.string().trim().max(2000).default(''),
+}).refine((data) => data.minYear <= data.maxYear, {
+  path: ['maxYear'],
+  message: 'Maximum year must be the same as or later than minimum year',
 });
+
+export const vehicleRequestStatusSchema = z.enum(['Pending Review', 'Sourcing Active', 'Vehicle Found', 'Closed']);
 
 export const leadSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
