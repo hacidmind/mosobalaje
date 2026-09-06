@@ -74,7 +74,17 @@ export async function getVehicleById(id: string) {
 }
 
 export async function createVehicle(data: unknown) {
-  const parsed = vehicleSchema.parse(data);
+  const raw = data as Record<string, unknown>;
+  const input = {
+    ...raw,
+    price: raw.price ? Number(raw.price) : 0,
+    mileage: raw.mileage ? Number(raw.mileage) : 0,
+    year: raw.year ? Number(raw.year) : new Date().getFullYear(),
+    featured: Boolean(raw.featured),
+    features: Array.isArray(raw.features) ? raw.features : [],
+    images: Array.isArray(raw.images) ? raw.images : [],
+  };
+  const parsed = vehicleSchema.parse(input);
   const slug = generateSlug(parsed.make, parsed.model, parsed.year, parsed.trim);
   const now = new Date().toISOString();
 
@@ -93,7 +103,16 @@ export async function createVehicle(data: unknown) {
 }
 
 export async function updateVehicle(id: string, data: unknown) {
-  const parsed = vehicleSchema.partial().parse(data);
+  const raw = data as Record<string, unknown>;
+  const input: Record<string, unknown> = { ...raw };
+  if (typeof raw.price === 'string') input.price = Number(raw.price);
+  if (typeof raw.mileage === 'string') input.mileage = Number(raw.mileage);
+  if (typeof raw.year === 'string') input.year = Number(raw.year);
+  if (raw.featured !== undefined) input.featured = Boolean(raw.featured);
+  if (raw.purchasePrice !== undefined && typeof raw.purchasePrice === 'string') input.purchasePrice = Number(raw.purchasePrice);
+  if (raw.sellingPrice !== undefined && typeof raw.sellingPrice === 'string') input.sellingPrice = Number(raw.sellingPrice);
+
+  const parsed = vehicleSchema.partial().parse(input);
   const now = new Date().toISOString();
 
   const updates: Record<string, unknown> = { ...parsed, updatedAt: now };
@@ -259,7 +278,9 @@ export async function getSettings() {
     await collection.insertOne({ _key: 'site_settings', ...defaults });
     return defaults;
   }
-  const { _id, _key, ...settings } = doc;
+  const settings = { ...doc } as Record<string, unknown>;
+  delete settings._id;
+  delete settings._key;
   return settings as unknown as WebsiteContentSettings;
 }
 

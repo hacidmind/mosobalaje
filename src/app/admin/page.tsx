@@ -1,49 +1,25 @@
-'use client';
+import { getVehicles, getLeads, getInquiries, getVehicleRequests } from '@/src/lib/data';
 
-import React from 'react';
-import { Car, Users, MessageSquare, FileText, TrendingUp } from 'lucide-react';
+export const dynamic = 'force-dynamic';
 
-interface Metrics {
-  totalVehicles: number;
-  availableVehicles: number;
-  inTransitVehicles: number;
-  soldVehicles: number;
-  totalLeads: number;
-  newLeads: number;
-  totalInquiries: number;
-  pendingRequests: number;
-}
+export default async function AdminDashboardPage() {
+  const [vehicles, leads, inquiries, requests] = await Promise.all([
+    getVehicles(),
+    getLeads(),
+    getInquiries(),
+    getVehicleRequests(),
+  ]);
 
-interface Lead {
-  _id: string;
-  name: string;
-  status: string;
-  vehicleName?: string;
-  createdAt: string;
-}
-
-interface Vehicle {
-  _id: string;
-  make: string;
-  model: string;
-  year: number;
-  status: string;
-  price: number;
-}
-
-interface Props {
-  metrics: Metrics;
-  recentLeads: Lead[];
-  recentVehicles: Vehicle[];
-}
-
-export function AdminDashboardClient({ metrics, recentLeads, recentVehicles }: Props) {
-  const cards = [
-    { label: 'Total Vehicles', value: metrics.totalVehicles, sub: `${metrics.availableVehicles} available`, icon: Car, color: 'text-blue-600 bg-blue-50' },
-    { label: 'Active Leads', value: metrics.totalLeads, sub: `${metrics.newLeads} new`, icon: Users, color: 'text-purple-600 bg-purple-50' },
-    { label: 'Inquiries', value: metrics.totalInquiries, sub: 'All time', icon: MessageSquare, color: 'text-amber-600 bg-amber-50' },
-    { label: 'Pending Requests', value: metrics.pendingRequests, sub: 'Needs review', icon: FileText, color: 'text-red-600 bg-red-50' },
-  ];
+  const metrics = {
+    totalVehicles: vehicles.length,
+    availableVehicles: vehicles.filter(v => v.status === 'Available').length,
+    inTransitVehicles: vehicles.filter(v => v.status === 'In Transit').length,
+    soldVehicles: vehicles.filter(v => v.status === 'Sold').length,
+    totalLeads: leads.length,
+    newLeads: leads.filter(l => l.status === 'New').length,
+    totalInquiries: inquiries.length,
+    pendingRequests: requests.filter(r => r.status === 'Pending Review').length,
+  };
 
   return (
     <div className="space-y-8">
@@ -53,7 +29,12 @@ export function AdminDashboardClient({ metrics, recentLeads, recentVehicles }: P
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map((card) => (
+        {[
+          { label: 'Total Vehicles', value: metrics.totalVehicles, sub: `${metrics.availableVehicles} available`, color: 'text-blue-600 bg-blue-50', Icon: '🚗' },
+          { label: 'Active Leads', value: metrics.totalLeads, sub: `${metrics.newLeads} new`, color: 'text-purple-600 bg-purple-50', Icon: '👥' },
+          { label: 'Inquiries', value: metrics.totalInquiries, sub: 'All time', color: 'text-amber-600 bg-amber-50', Icon: '💬' },
+          { label: 'Pending Requests', value: metrics.pendingRequests, sub: 'Needs review', color: 'text-red-600 bg-red-50', Icon: '📋' },
+        ].map((card) => (
           <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -61,9 +42,7 @@ export function AdminDashboardClient({ metrics, recentLeads, recentVehicles }: P
                 <p className="text-2xl font-extrabold text-stone-900 mt-1">{card.value}</p>
                 <p className="text-xs text-stone-400 mt-0.5">{card.sub}</p>
               </div>
-              <div className={`w-10 h-10 rounded-xl ${card.color} flex items-center justify-center`}>
-                <card.icon className="w-5 h-5" />
-              </div>
+              <div className={`w-10 h-10 rounded-xl ${card.color} flex items-center justify-center text-lg`}>{card.Icon}</div>
             </div>
           </div>
         ))}
@@ -72,11 +51,11 @@ export function AdminDashboardClient({ metrics, recentLeads, recentVehicles }: P
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-stone-200 p-6">
           <h2 className="text-sm font-bold text-stone-900 mb-4">Recent Leads</h2>
-          {recentLeads.length === 0 ? (
+          {leads.length === 0 ? (
             <p className="text-sm text-stone-400">No leads yet.</p>
           ) : (
             <div className="space-y-3">
-              {recentLeads.map((lead) => (
+              {leads.slice(0, 5).map((lead) => (
                 <div key={lead._id} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
                   <div>
                     <p className="text-sm font-semibold text-stone-900">{lead.name}</p>
@@ -91,17 +70,21 @@ export function AdminDashboardClient({ metrics, recentLeads, recentVehicles }: P
 
         <div className="bg-white rounded-2xl border border-stone-200 p-6">
           <h2 className="text-sm font-bold text-stone-900 mb-4">Latest Vehicles</h2>
-          {recentVehicles.length === 0 ? (
+          {vehicles.length === 0 ? (
             <p className="text-sm text-stone-400">No vehicles added yet.</p>
           ) : (
             <div className="space-y-3">
-              {recentVehicles.map((v) => (
+              {vehicles.slice(0, 5).map((v) => (
                 <div key={v._id} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
                   <div>
                     <p className="text-sm font-semibold text-stone-900">{v.make} {v.model}</p>
                     <p className="text-xs text-stone-500">{v.year} — ₦{v.price.toLocaleString()}</p>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-medium">{v.status}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    v.status === 'Available' ? 'bg-emerald-50 text-emerald-700' : 
+                    v.status === 'In Transit' ? 'bg-amber-50 text-amber-700' : 
+                    'bg-blue-50 text-blue-700'
+                  }`}>{v.status}</span>
                 </div>
               ))}
             </div>

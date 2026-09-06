@@ -1,4 +1,6 @@
 import React from 'react';
+import Image from 'next/image';
+import logoImage from '../../../public/logo.jpg';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -16,8 +18,8 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
       <div className="relative flex items-center justify-center overflow-hidden rounded-xl bg-stone-950 p-1 border border-stone-800/90 shadow-md ring-1 ring-red-950/40 hover:ring-red-600/40 transition-all">
-        <img
-          src="/logo.jpg"
+        <Image
+          src={logoImage}
           alt="Mosobalaje Vehicle Imports — IAA & Copart Registered Member"
           className={`${heightClasses[size]} w-auto object-contain brightness-105 contrast-105`}
           referrerPolicy="no-referrer"

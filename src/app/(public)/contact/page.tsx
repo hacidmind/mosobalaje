@@ -4,7 +4,6 @@ import React from 'react';
 import { SectionHeader } from '@/src/components/ui/SectionHeader';
 import { ContactForm } from '@/src/components/forms/ContactForm';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { getSettings } from '@/src/lib/data';
 
 export default function ContactPage() {
   return (

@@ -24,8 +24,8 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
   const isActive = (href: string) => pathname === href || (href !== '/admin' && pathname.startsWith(href));
 
   return (
-    <aside className="w-64 min-h-screen bg-stone-950 text-stone-300 border-r border-stone-800 flex flex-col">
-      <div className="p-6 border-b border-stone-800">
+    <aside className="w-full md:sticky md:top-0 md:h-screen md:w-60 md:shrink-0 bg-stone-950 text-stone-300 border-r border-stone-800 flex flex-col">
+      <div className="p-4 md:p-6 border-b border-stone-800">
         <Link href="/admin" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg bg-red-950/80 border border-red-800/60 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-red-500" />
@@ -37,9 +37,9 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
         </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav aria-label="Admin navigation" className="flex overflow-x-auto gap-1 p-3 md:block md:flex-1 md:space-y-1 md:p-4">
         {links.map((link) => (
-          <Link key={link.href} href={link.href} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(link.href) ? 'bg-stone-800 text-white' : 'text-stone-400 hover:text-white hover:bg-stone-900'}`}>
+          <Link key={link.href} href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} className={`shrink-0 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(link.href) ? 'bg-stone-800 text-white' : 'text-stone-400 hover:text-white hover:bg-stone-900'}`}>
             <link.icon className="w-4 h-4" />
             {link.label}
           </Link>

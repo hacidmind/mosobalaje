@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { VehicleImage } from '@/src/components/vehicles/VehicleImage';
 import { formatNaira, getWhatsAppUrl } from '@/src/lib/formatting';
 import { StatusBadge, ImportStatusBadge } from '../ui/StatusBadge';
 import { Vehicle } from '@/src/lib/types';
@@ -8,12 +10,11 @@ import { ArrowRight, MessageCircle, ShieldCheck } from 'lucide-react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
-  onSelect: (vehicle: Vehicle) => void;
   whatsappNumber?: string;
   featured?: boolean;
 }
 
-export function VehicleCard({ vehicle, onSelect, whatsappNumber, featured }: VehicleCardProps) {
+export function VehicleCard({ vehicle, whatsappNumber, featured }: VehicleCardProps) {
   const image = vehicle.images?.[0] || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=600';
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, `${vehicle.year} ${vehicle.make} ${vehicle.model}`, vehicle.vinPlaceholder);
 
@@ -25,8 +26,8 @@ export function VehicleCard({ vehicle, onSelect, whatsappNumber, featured }: Veh
         </div>
       )}
 
-      <div className="relative aspect-16/9 overflow-hidden bg-stone-100" onClick={() => onSelect(vehicle)}>
-        <img src={image} alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+      <Link href={`/vehicles/${vehicle.slug}`} aria-label={`View ${vehicle.year} ${vehicle.make} ${vehicle.model}`} className="relative block aspect-16/9 overflow-hidden bg-stone-100">
+        <VehicleImage src={image} alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} fill sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw" unoptimized={!image.startsWith('https://images.unsplash.com/')} className="object-cover object-center group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="flex gap-2">
             <StatusBadge status={vehicle.status} size="sm" />
@@ -37,15 +38,15 @@ export function VehicleCard({ vehicle, onSelect, whatsappNumber, featured }: Veh
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
-      <div className="p-5 space-y-3" onClick={() => onSelect(vehicle)}>
+      <div className="p-5 space-y-3">
         <div>
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-xs text-stone-500 font-medium tracking-wide uppercase">{vehicle.make}</p>
               <h3 className="text-lg font-bold text-stone-900 leading-tight">
-                {vehicle.model} <span className="text-stone-400 font-normal text-sm">{vehicle.year}</span>
+                <Link href={`/vehicles/${vehicle.slug}`} className="hover:text-amber-700">{vehicle.model} <span className="text-stone-400 font-normal text-sm">{vehicle.year}</span></Link>
               </h3>
             </div>
             <span className="text-lg font-extrabold text-stone-900 whitespace-nowrap">{formatNaira(vehicle.price)}</span>
@@ -66,9 +67,9 @@ export function VehicleCard({ vehicle, onSelect, whatsappNumber, featured }: Veh
       </div>
 
       <div className="px-5 pb-5 flex flex-col gap-2">
-        <button onClick={() => onSelect(vehicle)} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-stone-900 text-white text-sm font-semibold hover:bg-stone-800 transition-colors">
+        <Link href={`/vehicles/${vehicle.slug}`} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-stone-900 text-white text-sm font-semibold hover:bg-stone-800 transition-colors">
           View Details <ArrowRight className="w-4 h-4" />
-        </button>
+        </Link>
         <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors">
           <MessageCircle className="w-3.5 h-3.5" /> Inquire on WhatsApp
         </a>

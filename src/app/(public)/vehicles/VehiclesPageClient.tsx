@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { MotionReveal } from '@/src/components/ui/MotionReveal';
 import { VehicleFilters } from '@/src/components/vehicles/VehicleFilters';
 import { VehicleCard } from '@/src/components/vehicles/VehicleCard';
 import { EmptyState } from '@/src/components/ui/SectionHeader';
@@ -14,12 +14,10 @@ interface Props {
 }
 
 export function VehiclesPageClient({ vehicles }: Props) {
-  const router = useRouter();
+  const [filterKey, setFilterKey] = useState(0);
   const [filtered, setFiltered] = useState<Vehicle[]>(vehicles || []);
 
-  const handleSelectVehicle = (vehicle: Vehicle) => {
-    router.push(`/vehicles/${vehicle.slug}`);
-  };
+  const resetFilters = () => { setFilterKey(key => key + 1); setFiltered(vehicles); };
 
   return (
     <div className="min-h-screen bg-[#fcfbf9]">
@@ -32,24 +30,25 @@ export function VehiclesPageClient({ vehicles }: Props) {
             dark
           />
           <div className="max-w-3xl mx-auto mt-6">
-            <VehicleFilters vehicles={vehicles || []} onFilter={setFiltered} />
+            <VehicleFilters key={filterKey} vehicles={vehicles || []} onFilter={setFiltered} />
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <p role="status" aria-live="polite" className="mb-6 text-sm text-stone-500"><span className="font-semibold text-stone-900">{filtered.length}</span> {filtered.length === 1 ? 'vehicle' : 'vehicles'} found</p>
         {filtered.length === 0 ? (
           <EmptyState
             title="No vehicles match your current filters"
             description="Try adjusting your search criteria or browse our full inventory."
-            onAction={() => setFiltered(vehicles || [])}
+            onAction={resetFilters}
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <MotionReveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((v) => (
-              <VehicleCard key={v._id} vehicle={v} onSelect={handleSelectVehicle} />
+              <VehicleCard key={v._id} vehicle={v} />
             ))}
-          </div>
+          </MotionReveal>
         )}
       </div>
 

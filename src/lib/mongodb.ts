@@ -1,51 +1,30 @@
 import { MongoClient, Db } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = process.env.MONGODB_DB || 'mosobalaje_imports';
+type Connection = { client: MongoClient; db: Db };
+const globalCache = globalThis as unknown as { _mongoConnection?: Promise<Connection> };
 
-interface CachedConnection {
-  client: MongoClient | null;
-  db: Db | null;
-}
-
-const globalCache = globalThis as unknown as { _mongoCache?: CachedConnection };
-
-if (!globalCache._mongoCache) {
-  globalCache._mongoCache = { client: null, db: null };
-}
-
-function getCache(): CachedConnection {
-  return globalCache._mongoCache!;
-}
-
-export async function connectToDatabase(): Promise<{
-  client: MongoClient;
-  db: Db;
-}> {
-  const cache = getCache();
-
-  if (cache.client && cache.db) {
-    return { client: cache.client, db: cache.db };
-  }
-
-  if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI environment variable is not set');
-  }
-
-  const client = new MongoClient(MONGODB_URI, {
+// Cache the pending connection too: parallel server components share one pool.
+export function connectToDatabase(): Promise<Connection> {
+  if (globalCache._mongoConnection) return globalCache._mongoConnection;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) return Promise.reject(new Error('MONGODB_URI environment variable is not set'));
+  const client = new MongoClient(uri, {
     maxPoolSize: 10,
-    minPoolSize: 2,
+    minPoolSize: 0,
     serverSelectionTimeoutMS: 5000,
     connectTimeoutMS: 10000,
+    socketTimeoutMS: 10000,
+    waitQueueTimeoutMS: 5000,
   });
-
-  await client.connect();
-  const db = client.db(DB_NAME);
-
-  cache.client = client;
-  cache.db = db;
-
-  return { client, db };
+  globalCache._mongoConnection = client.connect()
+    .then(() => ({ client, db: client.db(DB_NAME) }))
+    .catch(async (error: unknown) => {
+      globalCache._mongoConnection = undefined;
+      await client.close().catch(() => undefined);
+      throw error;
+    });
+  return globalCache._mongoConnection;
 }
 
 export async function getCollection(name: string) {

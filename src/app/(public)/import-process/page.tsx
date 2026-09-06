@@ -41,7 +41,7 @@ export default function ImportProcessPage() {
         </div>
       </section>
 
-      <CTASection onNavigate={() => {}} whatsappNumber="2349064153303" />
+      <CTASection whatsappNumber="2349064153303" />
     </div>
   );
 }

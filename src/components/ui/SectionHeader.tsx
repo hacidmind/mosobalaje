@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Car, Search, RefreshCw, ArrowRight } from 'lucide-react';
 
 interface EmptyStateProps {
@@ -82,11 +83,10 @@ export function SectionHeader({ badge, title, subtitle, align = 'center', dark =
 }
 
 interface CTASectionProps {
-  onNavigate: (route: string) => void;
   whatsappNumber?: string;
 }
 
-export function CTASection({ onNavigate, whatsappNumber }: CTASectionProps) {
+export function CTASection({ whatsappNumber }: CTASectionProps) {
   const cleanNumber = (whatsappNumber || '2349064153303').replace(/[^0-9]/g, '') || '2349064153303';
   return (
     <section className="py-20 bg-stone-950 text-white relative overflow-hidden border-t border-stone-900">
@@ -105,12 +105,12 @@ export function CTASection({ onNavigate, whatsappNumber }: CTASectionProps) {
               We source bespoke vehicles on demand as a registered member of IAA &amp; Copart wholesale auctions, alongside certified suppliers in the USA, Canada, Germany, and Japan. Complete customs clearing and delivery to your doorstep.
             </p>
             <div className="mt-8 flex flex-wrap gap-4 items-center">
-              <button onClick={() => onNavigate('/request-vehicle')} className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-sm hover:bg-amber-400 transition-all shadow-lg hover:shadow-amber-500/20 cursor-pointer">
+              <Link href="/request-vehicle" className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-sm hover:bg-amber-400 transition-all shadow-lg hover:shadow-amber-500/20 cursor-pointer">
                 Request a Custom Import <ArrowRight className="w-4 h-4" />
-              </button>
-              <button onClick={() => onNavigate('/import-process')} className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-stone-900 text-stone-200 border border-stone-800 font-semibold text-sm hover:bg-stone-800 hover:text-white transition-colors cursor-pointer">
+              </Link>
+              <Link href="/import-process" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-stone-900 text-stone-200 border border-stone-800 font-semibold text-sm hover:bg-stone-800 hover:text-white transition-colors cursor-pointer">
                 Understand Our 9-Step Process
-              </button>
+              </Link>
             </div>
           </div>
           <div className="lg:col-span-4 bg-stone-900/90 border border-stone-800 p-7 rounded-2xl">

@@ -18,7 +18,7 @@ export const vehicleSchema = z.object({
   vinPlaceholder: z.string().max(20).optional(),
   description: z.string().max(2000).default(''),
   features: z.array(z.string()).default([]),
-  images: z.array(z.string().url()).default([]),
+  images: z.array(z.string()).default([]),
   status: z.enum(['Available', 'Reserved', 'Sold', 'In Transit', 'Coming Soon']).default('Available'),
   importStatus: z.enum([
     'Sourced in USA/Europe',

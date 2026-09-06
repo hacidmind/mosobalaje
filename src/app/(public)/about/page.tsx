@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Metadata } from 'next';
-import { ShieldCheck, Award, Users, Globe, CheckCircle2, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldCheck, Award, Users, Globe, CheckCircle2 } from 'lucide-react';
 import { SectionHeader } from '@/src/components/ui/SectionHeader';
 import { CTASection } from '@/src/components/ui/SectionHeader';
 
@@ -52,7 +52,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="rounded-2xl overflow-hidden bg-stone-100 aspect-4/3">
-              <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800" alt="Mosobalaje Vehicle Imports Office" className="w-full h-full object-cover" />
+              <Image src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800" alt="Premium vehicle" width={800} height={600} sizes="(max-width: 1023px) 100vw, 50vw" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <CTASection onNavigate={(route) => {}} whatsappNumber="2349064153303" />
+      <CTASection whatsappNumber="2349064153303" />
     </div>
   );
 }

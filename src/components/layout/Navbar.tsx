@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ShieldCheck, Menu, X, Phone, ArrowRight, Lock, MessageCircle, Award } from 'lucide-react';
 import { Logo } from '../ui/Logo';
 import { getWhatsAppUrl } from '@/src/lib/formatting';
@@ -15,6 +16,8 @@ interface NavbarProps {
 }
 
 export function Navbar({ settings, isAdmin = false }: NavbarProps) {
+  const pathname = usePathname();
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navPhone = settings?.phone || '0906 415 3303';
@@ -31,7 +34,7 @@ export function Navbar({ settings, isAdmin = false }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-stone-200/80 transition-all shadow-xs">
-      <div className="bg-stone-950 text-stone-300 text-xs py-1.5 px-4 sm:px-8 border-b border-stone-800 flex justify-between items-center tracking-wide">
+      <div className="hidden sm:flex bg-stone-950 text-stone-300 text-xs py-1.5 px-4 sm:px-8 border-b border-stone-800 flex justify-between items-center tracking-wide">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5 text-stone-200 font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
@@ -66,15 +69,15 @@ export function Navbar({ settings, isAdmin = false }: NavbarProps) {
           <Logo size="md" />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-5">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-sm font-semibold transition-colors py-1 text-stone-600 hover:text-stone-950">
+            <Link key={link.href} href={link.href} aria-current={isActive(link.href) ? 'page' : undefined} className={`text-sm font-semibold transition-colors py-1 ${isActive(link.href) ? 'text-amber-700 border-b-2 border-amber-600' : 'text-stone-600 hover:text-stone-950'}`}>
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-3">
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-600/30 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer shadow-2xs">
             <MessageCircle className="w-4 h-4 text-emerald-600" />
             <span>Chat On WhatsApp</span>
@@ -89,14 +92,14 @@ export function Navbar({ settings, isAdmin = false }: NavbarProps) {
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="sm:hidden p-2 rounded-lg bg-emerald-50 text-emerald-700" aria-label="WhatsApp">
             <MessageCircle className="w-5 h-5" />
           </a>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 rounded-xl bg-stone-100 text-stone-800 hover:bg-stone-200 transition-colors" aria-label="Toggle menu">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 rounded-xl bg-stone-100 text-stone-800 hover:bg-stone-200 transition-colors" aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-stone-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-xl">
+        <div id="mobile-navigation" onKeyDown={(event) => { if (event.key === 'Escape') setMobileMenuOpen(false); }} className="lg:hidden border-t border-stone-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-xl">
           <div className="pb-2 border-b border-stone-100 flex items-center justify-between">
             <Logo size="sm" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">IAA & Copart Member</span>

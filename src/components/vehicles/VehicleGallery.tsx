@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { VehicleImage } from '@/src/components/vehicles/VehicleImage';
 import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import { VehicleStatus, ImportStatus } from '@/src/lib/types';
 import { StatusBadge, ImportStatusBadge } from '../ui/StatusBadge';
@@ -26,7 +27,7 @@ export function VehicleGallery({ images, vehicleTitle, status, importStatus, yea
     <>
       <div className="space-y-3">
         <div className="relative aspect-16/10 rounded-2xl overflow-hidden bg-stone-900 border border-stone-200/80 group select-none shadow-sm">
-          <img src={safeImages[currentIndex]} alt={`${vehicleTitle} - Photo ${currentIndex + 1}`} className="w-full h-full object-cover object-center transition-all duration-300" />
+          <VehicleImage src={safeImages[currentIndex]} alt={`${vehicleTitle} - Photo ${currentIndex + 1}`} fill sizes="(max-width: 1023px) 100vw, 65vw" preload={currentIndex === 0} unoptimized={!safeImages[currentIndex].startsWith('https://images.unsplash.com/')} className="object-cover object-center" />
 
           <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
             <div className="flex flex-col gap-1.5 items-start">
@@ -56,8 +57,8 @@ export function VehicleGallery({ images, vehicleTitle, status, importStatus, yea
         {safeImages.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-1">
             {safeImages.map((img, idx) => (
-              <button key={idx} onClick={() => setCurrentIndex(idx)} className={`shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all ${idx === currentIndex ? 'border-amber-500 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              <button aria-label={`View photo ${idx + 1}`} aria-pressed={idx === currentIndex} key={idx} onClick={() => setCurrentIndex(idx)} className={`relative shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all ${idx === currentIndex ? 'border-amber-500 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                <VehicleImage src={img} alt="" fill sizes="80px" unoptimized={!img.startsWith('https://images.unsplash.com/')} className="object-cover" />
               </button>
             ))}
           </div>
@@ -79,7 +80,7 @@ export function VehicleGallery({ images, vehicleTitle, status, importStatus, yea
               </button>
             </>
           )}
-          <img src={safeImages[currentIndex]} alt={`${vehicleTitle} - Fullscreen`} className="max-w-full max-h-[90vh] object-contain rounded-lg" />
+          <VehicleImage src={safeImages[currentIndex]} alt={`${vehicleTitle} - Fullscreen`} fill sizes="100vw" unoptimized={!safeImages[currentIndex].startsWith('https://images.unsplash.com/')} className="object-contain p-6" />
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm">{currentIndex + 1} / {safeImages.length}</div>
         </div>
       )}

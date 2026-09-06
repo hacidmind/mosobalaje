@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, CheckCircle, Send, Calendar, Car, Banknote, User, Phone, Mail, MessageCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle, Send, Calendar, Car, Banknote, User, MessageCircle } from 'lucide-react';
 import { useToast } from '../ui/Toast';
 import { createVehicleRequest } from '@/src/lib/data';
 import { getWhatsAppUrl } from '@/src/lib/formatting';

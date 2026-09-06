@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { getCollection, COLLECTIONS } from './mongodb';
 
 const INITIAL_VEHICLES = [
   {
