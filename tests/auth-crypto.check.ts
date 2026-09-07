@@ -1,11 +1,12 @@
 import { strict as assert } from 'node:assert';
 import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import dotenv from 'dotenv';
+import nextEnv from '@next/env';
 import { verifyPassword } from '../src/lib/auth/password';
 import { verifyTotp } from '../src/lib/auth/totp';
 
-dotenv.config({ path: '.env.local', quiet: true });
+// Match the application's environment loading, including dollar expansion.
+nextEnv.loadEnvConfig(process.cwd());
 const handoff = readFileSync('.auth-credentials.txt', 'utf8');
 const credential = (label: string) => {
   const value = handoff.match(new RegExp(`^${label}: (.+)$`, 'm'))?.[1];
