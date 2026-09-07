@@ -6,7 +6,7 @@ import DescriptionEditor from '@/src/components/admin/DescriptionEditor';
 import { VehicleImage } from '@/src/components/vehicles/VehicleImage';
 import { Trash2, Plus, Pencil, X } from 'lucide-react';
 import { useToast } from '@/src/components/ui/Toast';
-import { createVehicle, updateVehicle, deleteVehicle } from '@/src/lib/data';
+import { createVehicle, updateVehicle, deleteVehicle } from '@/src/lib/actions';
 import { formatNaira } from '@/src/lib/formatting';
 import { PageSkeleton } from '@/src/components/ui/PageSkeleton';
 import { Vehicle } from '@/src/lib/types';

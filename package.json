@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "seed": "npx tsx src/lib/seed.ts"
+    "test:auth": "tsx tests/auth-crypto.check.ts",
+    "seed": "npx tsx src/lib/seed.ts",
+    "auth:provision": "tsx src/scripts/provision-auth.ts"
   },
   "dependencies": {
     "@tiptap/pm": "^3.31.3",

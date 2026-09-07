@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, Banknote, Calendar, Car, CheckCircle, LoaderCircle, MessageCircle, Send, ShieldCheck, User } from 'lucide-react';
-import { createVehicleRequest } from '@/src/lib/data';
+import { createVehicleRequest } from '@/src/lib/actions';
 import { getWhatsAppUrl } from '@/src/lib/formatting';
 import { vehicleRequestSchema } from '@/src/lib/validations';
 import { useToast } from '../ui/Toast';

@@ -453,15 +453,6 @@ const INITIAL_REQUESTS = [
   },
 ];
 
-const INITIAL_ADMIN = {
-  name: 'Super Admin',
-  email: 'admin@mosobalajeimports.ng',
-  passwordHash: '$2b$10$dummy_hash_replace_with_real_bcrypt',
-  role: 'Super Admin',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
-
 async function seed() {
   const MONGODB_URI = process.env.MONGODB_URI;
   if (!MONGODB_URI) {
@@ -503,9 +494,6 @@ async function seed() {
     { key: { status: 1 } },
     { key: { createdAt: -1 } },
   ]);
-  await db.collection('adminUsers').createIndexes([
-    { key: { email: 1 }, unique: true },
-  ]);
   await db.collection('settings').createIndexes([
     { key: { _key: 1 }, unique: true },
   ]);
@@ -524,9 +512,6 @@ async function seed() {
 
   console.log('Seeding settings...');
   await db.collection('settings').insertOne(INITIAL_SETTINGS);
-
-  console.log('Seeding admin user...');
-  await db.collection('adminUsers').insertOne(INITIAL_ADMIN);
 
   console.log('Seed complete!');
   await client.close();

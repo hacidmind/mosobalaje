@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle, MessageCircle, User, Phone, Mail } from 'lucide-react';
 import { useToast } from '../ui/Toast';
-import { createInquiry } from '@/src/lib/data';
+import { createInquiry } from '@/src/lib/actions';
 import { getWhatsAppUrl } from '@/src/lib/formatting';
 import { Vehicle } from '@/src/lib/types';
 

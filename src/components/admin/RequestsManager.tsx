@@ -2,7 +2,7 @@
 
 import { CheckCircle2, ExternalLink, Loader2, Mail, Phone, SearchCheck } from 'lucide-react';
 import { useState } from 'react';
-import { updateVehicleRequestStatus } from '@/src/lib/data';
+import { updateVehicleRequestStatus } from '@/src/lib/actions';
 import type { VehicleRequest } from '@/src/lib/types';
 import { Modal } from '@/src/components/ui/Modal';
 import { useToast } from '@/src/components/ui/Toast';

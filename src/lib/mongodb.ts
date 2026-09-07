@@ -38,5 +38,7 @@ export const COLLECTIONS = {
   INQUIRIES: 'inquiries',
   VEHICLE_REQUESTS: 'vehicleRequests',
   ADMIN_USERS: 'adminUsers',
+  AUTH_SESSIONS: 'authSessions',
+  AUTH_ATTEMPTS: 'authAttempts',
   SETTINGS: 'settings',
 } as const;

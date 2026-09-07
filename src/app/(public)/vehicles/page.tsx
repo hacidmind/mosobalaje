@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getVehicles } from '@/src/lib/data';
+import { getPublicVehicles } from '@/src/lib/data';
 import { VehiclesPageClient } from './VehiclesPageClient';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function VehiclesPage() {
-  const vehicles = await getVehicles();
+  const vehicles = await getPublicVehicles();
   return <VehiclesPageClient vehicles={vehicles} />;
 }

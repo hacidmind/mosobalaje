@@ -3,7 +3,7 @@ import { VehicleDescription } from '@/src/components/vehicles/VehicleDescription
 import { descriptionToText } from '@/src/lib/description-format';
 import { sanitizeDescription } from '@/src/lib/sanitize-description';
 import { notFound } from 'next/navigation';
-import { getVehicleBySlug, getVehicles } from '@/src/lib/data';
+import { getPublicVehicleBySlug, getPublicVehicles } from '@/src/lib/data';
 import { VehicleDetailPageClient } from './VehicleDetailPageClient';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const vehicle = await getVehicleBySlug(slug);
+  const vehicle = await getPublicVehicleBySlug(slug);
   if (!vehicle) return { title: 'Vehicle Not Found' };
 
   return {
@@ -28,10 +28,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function VehicleDetailPage({ params }: Props) {
   const { slug } = await params;
-  const vehicle = await getVehicleBySlug(slug);
+  const vehicle = await getPublicVehicleBySlug(slug);
   if (!vehicle) notFound();
 
-  const allVehicles = await getVehicles({ limit: 6 });
+  const allVehicles = await getPublicVehicles({ limit: 6 });
 
   return <VehicleDetailPageClient vehicle={vehicle} allVehicles={allVehicles} description={<VehicleDescription description={vehicle.description} />} />;
 }

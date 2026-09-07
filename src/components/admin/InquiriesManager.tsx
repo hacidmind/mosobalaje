@@ -2,7 +2,7 @@
 
 import { CheckCircle2, ExternalLink, Loader2, Mail, Phone, SearchCheck } from 'lucide-react';
 import { useState } from 'react';
-import { updateInquiryStatus } from '@/src/lib/data';
+import { updateInquiryStatus } from '@/src/lib/actions';
 import type { Inquiry, InquiryStatus } from '@/src/lib/types';
 import { Modal } from '@/src/components/ui/Modal';
 import { InquiryStatusBadge } from '@/src/components/ui/LeadStatusBadge';

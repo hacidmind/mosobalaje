@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MessageCircle, Send, User } from 'lucide-react';
 import { useToast } from '../ui/Toast';
-import { createContactInquiry } from '@/src/lib/data';
+import { createContactInquiry } from '@/src/lib/actions';
 import { getWhatsAppUrl } from '@/src/lib/formatting';
 
 interface ContactFormProps {

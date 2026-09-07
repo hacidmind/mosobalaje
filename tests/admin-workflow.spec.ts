@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { hasBootstrapCredentials, loginAs } from './auth-helper';
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('mosobalaje_admin_auth_v1', 'true'));
+  test.skip(!hasBootstrapCredentials(), 'Local or E2E admin credentials are required.');
+  await loginAs(page);
 });
 
 for (const section of ['inquiries', 'requests'] as const) {

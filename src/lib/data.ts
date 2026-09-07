@@ -1,7 +1,8 @@
-'use server';
+import 'server-only';
 
 import { ObjectId } from 'mongodb';
 import { sanitizeDescription } from './sanitize-description';
+import { requireStaff } from './auth/session';
 import { getCollection, COLLECTIONS } from './mongodb';
 import {
   Vehicle,
@@ -62,11 +63,29 @@ export async function getVehicles(filter?: {
   return docs.map(serializeDoc) as unknown as Vehicle[];
 }
 
+function removeInternalVehicleFields(vehicle: Vehicle): Vehicle {
+  const publicVehicle = { ...vehicle };
+  delete publicVehicle.purchasePrice;
+  delete publicVehicle.sellingPrice;
+  delete publicVehicle.createdBy;
+  delete publicVehicle.updatedBy;
+  return publicVehicle;
+}
+
+export async function getPublicVehicles(filter?: Parameters<typeof getVehicles>[0]) {
+  return (await getVehicles(filter)).map(removeInternalVehicleFields);
+}
+
 export async function getVehicleBySlug(slug: string) {
   const collection = await getCollection(COLLECTIONS.VEHICLES);
   const doc = await collection.findOne({ slug });
   if (!doc) return null;
   return serializeDoc(doc) as unknown as Vehicle;
+}
+
+export async function getPublicVehicleBySlug(slug: string) {
+  const vehicle = await getVehicleBySlug(slug);
+  return vehicle ? removeInternalVehicleFields(vehicle) : null;
 }
 
 export async function getVehicleById(id: string) {
@@ -153,6 +172,7 @@ export async function deleteVehicle(id: string) {
 // ─── Inquiries ──────────────────────────────────────────────
 
 export async function getInquiries() {
+  await requireStaff();
   const collection = await getCollection(COLLECTIONS.INQUIRIES);
   const docs = await collection.find().sort({ createdAt: -1 }).toArray();
   return docs.map(serializeDoc) as unknown as Inquiry[];
@@ -211,6 +231,7 @@ export async function updateInquiryStatus(id: string, status: unknown) {
 // ─── Vehicle Requests ───────────────────────────────────────
 
 export async function getVehicleRequests() {
+  await requireStaff();
   const collection = await getCollection(COLLECTIONS.VEHICLE_REQUESTS);
   const docs = await collection.find().sort({ createdAt: -1 }).toArray();
   return docs.map(serializeDoc) as unknown as VehicleRequest[];
@@ -265,6 +286,7 @@ export async function updateVehicleRequestStatus(id: string, status: unknown) {
 // ─── Leads ──────────────────────────────────────────────────
 
 export async function getLeads() {
+  await requireStaff();
   const collection = await getCollection(COLLECTIONS.LEADS);
   const docs = await collection.find().sort({ createdAt: -1 }).toArray();
   return docs.map(serializeDoc) as unknown as Lead[];
@@ -331,6 +353,7 @@ export async function updateSettings(data: unknown) {
 // ─── Dashboard Metrics ──────────────────────────────────────
 
 export async function getDashboardMetrics() {
+  await requireStaff();
   const vehicles = await getCollection(COLLECTIONS.VEHICLES);
   const leads = await getCollection(COLLECTIONS.LEADS);
   const inquiries = await getCollection(COLLECTIONS.INQUIRIES);

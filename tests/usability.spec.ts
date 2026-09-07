@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { hasBootstrapCredentials, loginAs } from './auth-helper';
 
 test('inventory search, clear, and empty-result reset stay in sync', async ({ page }) => {
   await page.goto('/vehicles');
@@ -42,7 +43,8 @@ test('homepage links work with reduced motion and no horizontal overflow', async
 });
 
 test('admin inventory shows loading and recovers from a failed request', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('mosobalaje_admin_auth_v1', 'true'));
+  test.skip(!hasBootstrapCredentials(), 'Local or E2E admin credentials are required.');
+  await loginAs(page);
   let shouldFail = true;
   await page.route('**/api/vehicles', async route => {
     if (shouldFail) {
@@ -71,7 +73,8 @@ test('unavailable vehicle images have a readable fallback', async ({ page }) => 
 });
 
 test('admin can format a vehicle description', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('mosobalaje_admin_auth_v1', 'true'));
+  test.skip(!hasBootstrapCredentials(), 'Local or E2E admin credentials are required.');
+  await loginAs(page);
   await page.route('**/api/vehicles', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
