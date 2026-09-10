@@ -10,5 +10,6 @@ coverage/
 
 playwright-report/
 test-results/
+test-results-extended/
 *.tsbuildinfo
 .auth-credentials.txt

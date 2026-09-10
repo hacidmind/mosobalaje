@@ -15,7 +15,7 @@ test('invalid credentials return a generic error', async ({ page }) => {
   await page.getByLabel('Password').fill('incorrect-password-value');
   await page.getByLabel('Authenticator code').fill('000000');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText('Invalid email, password, or verification code.');
+  await expect(page.locator('form').getByRole('alert')).toHaveText('Invalid email, password, or verification code.');
 });
 
 test('admin signs in with password and TOTP', async ({ page }) => {
